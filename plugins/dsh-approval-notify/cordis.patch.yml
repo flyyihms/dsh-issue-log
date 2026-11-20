@@ -1,0 +1,10 @@
+# Insert one host plugin row. `dsh-approval-notify` is the package itself;
+# its default export is the cordis plugin function.
+- insert:
+    - id: approval-notify
+      name: 'dsh-approval-notify'
+      config:
+        notifyApproval: true
+        notifyIdle: true
+        notifyOnFocusedWindow: false
+        badge: true

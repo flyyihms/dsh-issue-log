@@ -12,6 +12,7 @@
 |---|---|---|---|---|
 | [0001](issues/0001-pwsh-sandbox-0xc0000142.md) | 沙箱内 `pwsh` 一律 `0xC0000142` | Windows 11 x64 | 0.2.1-rc.3 | 本地补丁已修复 |
 | [0002](issues/0002-sandbox-external-programs.md) | 沙箱内无法用管道启动外部程序（`Start-Process` 可绕过） | Windows 11 x64 | 0.2.1-rc.3 | 未解决（设计边界），有稳定规避 |
+| [0003](issues/0003-background-notifications.md) | 后台提醒：Windows 通知 + 任务栏数字角标 | Windows 11 x64 | 0.2.1-rc.3 | 已实现（本地插件，见 [plugins/](plugins/)） |
 
 ## 阅读约定
 

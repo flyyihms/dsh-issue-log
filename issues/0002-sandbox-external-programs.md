@@ -77,6 +77,17 @@ Remove-Item $out, $err
 - 但用 `Start-Process` 的文件重定向，**git、node、python 等都能跑**，足以完成"执行 → 取输出 → 取退出码"的闭环
 - 只有需要管道流式处理（大输出、实时日志、交互）时才必须切完全权限
 
+### 追加发现：网络推送另有一层限制
+
+用上面的方式在沙箱里跑 `git add` / `git commit` 都成功，但 `git push` 仍失败，且**不是**管道问题：
+
+```
+fatal: unable to access 'https://github.com/<owner>/<repo>.git/':
+schannel: AcquireCredentialsHandle failed: SEC_E_NO_CREDENTIALS (0x8009030e)
+```
+
+这是 TLS 客户端凭据在受限令牌下不可用，和管道是两回事。所以：**提交可以在沙箱里做，推送仍需要完全权限**。
+
 ## 教训
 
 1. 报错里出现 `\\.\pipe\...` 时，先判断"被拒的是管道不是文件"，排查方向完全不同

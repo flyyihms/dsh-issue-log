@@ -6,17 +6,27 @@ DSH bundle：窗口不在前台时，用 **Windows 通知**提醒你，并在任
 
 | 事件 | 通知 |
 |---|---|
-| 审批请求（`approval/request`） | 「DSH 需要你确认」+ 工具名与摘要 |
+| 审批框出现（DOM 里 `[data-approval-key]` 挂载） | 「DSH 需要你确认」+ 审批摘要 |
 | 会话空闲（`api-session/status` running=false） | 「DSH 任务已结束」 |
 
 只在窗口**不在前台**时触发；任务栏角标累计待处理数，**开始新一轮交互**（`api-session/status` running=true）时清零——相当于"未读"，聚焦窗口不会清掉它。
+
+## 通知的生命周期
+
+| 时机 | 动作 |
+|---|---|
+| 审批框消失（批准/拒绝/自动通过） | 关闭对应通知，不需要手动点"关闭" |
+| 窗口获得焦点 | 关闭所有还开着的通知 |
+| 开始新一轮交互 | 关闭所有通知并清零角标 |
 
 ## 实现位置
 
 DSH 的宿主进程是 Electron-as-node，拿不到 `electron` 模块（`require('electron')` 直接报找不到），所以通知必须在**渲染层**发：
 
-- `lib/client.js`：渲染层插件，`ctx.remote.$on(...)` 订阅上面两个事件，用浏览器 `Notification` 弹窗、`navigator.setAppBadge` 设角标
-- `lib/index.js`：宿主侧插件，只做诊断日志（保留是因为宿主事件也能观察到，便于对照）
+- `lib/client.js`：渲染层插件，用浏览器 `Notification` 弹窗、`navigator.setAppBadge` 设角标
+- `lib/index.js`：宿主侧插件，只打一行日志（能力不在这里）
+
+审批的触发方式不是订阅事件，而是**观察 DOM**：`approval/request` 是 waterfall，审批组件会接管这次请求，后注册的监听器可能收不到；而审批面板挂载时带 `data-approval-key` 属性，用 `MutationObserver` 盯它出现/消失最可靠。
 
 ### 前台/后台判断
 

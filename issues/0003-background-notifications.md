@@ -41,14 +41,26 @@ load: process.type=n/a versions.electron=44.7.0
 
 DSH 的界面是网页，客户端插件通过 `window.__ModuleLoader__.load({ id, factory })` 注册，`package.json` 里用 `dsh.client` 声明，宿主启动时**动态扫描**这些声明来组装页面入口。
 
-渲染层里能拿到和审批组件同源的事件：
+会话状态可以直接订阅：
 
 ```js
-ctx.remote.$on("approval/request", (request, next) => { ... })
 ctx.remote.$on("api-session/status", (sessionId, running) => { ... })
 ```
 
 浏览器 `Notification` 和 `navigator.setAppBadge` 都能直接用。
+
+### 第三步半：审批事件接不到，改用 DOM 观察
+
+一开始审批也是订阅 `ctx.remote.$on("approval/request", ...)`，但**实测收不到**：这个事件是 waterfall，审批组件自己接住并接管了这次请求，后注册的监听器拿不到（它没有把链传下去）。
+
+改用观察界面：审批面板挂载时带 `data-approval-key` 属性，用 `MutationObserver` 盯它出现和消失，完全不依赖事件顺序：
+
+```js
+const observer = new MutationObserver(check);
+observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-approval-key"] });
+```
+
+顺带解决"通知什么时候关"：面板消失 = 审批已处理 = 关掉对应通知。
 
 ### 第四步：焦点判断踩坑
 
@@ -77,6 +89,18 @@ ctx.remote.$on("api-session/status", (sessionId, running) => { ... })
 - 聚焦窗口**不清零**（只补应用一次，防止后台设置被系统丢弃）
 - 用户**开始新一轮交互**（`running === true`）时清零
 
+### 第六步：通知的生命周期
+
+第一版只能手动点"关闭"，用起来反而更啰嗦（切窗口、批完、再回来关通知）。改成**通知跟着原因走**：
+
+| 时机 | 动作 |
+|---|---|
+| 审批面板消失（批准/拒绝/自动通过） | 关闭对应通知 |
+| 窗口获得焦点 | 关闭所有还开着的通知 |
+| 开始新一轮交互 | 关闭所有通知并清零角标 |
+
+实际使用中，因为审批必须聚焦窗口才能点，所以"聚焦即关"这条路径基本覆盖了审批场景；"面板消失即关"是兜底。
+
 ## 实现
 
 插件包 `plugins/dsh-approval-notify/`：
@@ -104,10 +128,13 @@ dsh plugin --profile desktop add link:<本目录绝对路径>
 | 后台触发后任务栏 | ✅ 红色角标 `1` |
 | 切回窗口但不发消息 | ✅ 角标保留 |
 | 发出下一条消息 | ✅ 角标清零 |
+| 后台出现审批框 | ✅ 弹「DSH 需要你确认」+ 审批摘要 |
+| 审批被处理 / 窗口获得焦点 | ✅ 通知自动关闭，无需手动点"关闭" |
 
 ## 已知限制
 
-- **通知约 5 秒后自动收进通知中心**：浏览器 `Notification` 在 Windows 上做不到"必须手动关闭"。要常驻得用 WinRT 的 `reminder` 场景，从主进程或外部进程发。
+- **通知约 5 秒后自动收进通知中心**：浏览器 `Notification` 在 Windows 上做不到"常驻到手动关闭"。要常驻得用 WinRT 的 `reminder` 场景，从主进程或外部进程发。
+- **通知上没有「允许 / 拒绝」按钮**：网页 Notification 在 Windows 上不支持动作按钮，要做必须走 WinRT toast + 协议激活 + 回填审批，工程量大，暂不做。
 - **依赖 AppUserModelID**：没有 AUMID / 对应快捷方式的 Win32 应用，`new Notification()` 能创建成功但系统会静默丢弃。本机 DSH 可以正常显示；换机器收不到时先查这一项。
 - 角标依赖 `navigator.setAppBadge`，Chromium 不支持时静默跳过。
 
@@ -117,3 +144,5 @@ dsh plugin --profile desktop add link:<本目录绝对路径>
 2. 无法直接观测内部状态时，**把诊断写进用户看得见的地方**（通知正文），比翻日志快得多
 3. UI 语义要想清楚：角标是"未读"还是"当前状态"？清零点选错，功能等于没做
 4. 前后台判断这类信号，**多路冗余**比赌单一 API 可靠
+5. 事件订阅不生效时，先怀疑**事件链被上游接管**（waterfall 不往下传），降级到观察界面状态往往更稳
+6. 通知的生命周期应该绑定"原因消失"，而不是让用户手动关——否则功能反而增加操作

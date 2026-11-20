@@ -11,7 +11,7 @@
 | # | 问题 | 平台 | DSH 版本 | 状态 |
 |---|---|---|---|---|
 | [0001](issues/0001-pwsh-sandbox-0xc0000142.md) | 沙箱内 `pwsh` 一律 `0xC0000142` | Windows 11 x64 | 0.2.1-rc.3 | 本地补丁已修复 |
-| [0002](issues/0002-sandbox-external-programs.md) | 沙箱内无法启动任何外部程序（命名管道被拒） | Windows 11 x64 | 0.2.1-rc.3 | 未解决（疑似设计边界），有规避 |
+| [0002](issues/0002-sandbox-external-programs.md) | 沙箱内无法用管道启动外部程序（`Start-Process` 可绕过） | Windows 11 x64 | 0.2.1-rc.3 | 未解决（设计边界），有稳定规避 |
 
 ## 阅读约定
 

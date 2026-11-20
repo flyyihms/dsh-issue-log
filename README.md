@@ -11,7 +11,7 @@
 | # | 问题 | 平台 | DSH 版本 | 状态 |
 |---|---|---|---|---|
 | [0001](issues/0001-pwsh-sandbox-0xc0000142.md) | 沙箱内 `pwsh` 一律 `0xC0000142` | Windows 11 x64 | 0.2.1-rc.3 | 本地补丁已修复 |
-| [0002](issues/0002-git-in-sandbox.md) | 沙箱内无法执行 `git`（命名管道被拒） | Windows 11 x64 | 0.2.1-rc.3 | 未解决，有规避 |
+| [0002](issues/0002-sandbox-external-programs.md) | 沙箱内无法启动任何外部程序（命名管道被拒） | Windows 11 x64 | 0.2.1-rc.3 | 未解决（疑似设计边界），有规避 |
 
 ## 阅读约定
 

@@ -1,7 +1,0 @@
-# Host half: serves the notes API on the composition's web server.
-# Point notesPath at your own markdown file (see README for the format).
-- insert:
-    - id: notes-host
-      name: 'dsh-notes'
-      config:
-        notesPath: '<NOTES_PATH>/dsh-notes.md'

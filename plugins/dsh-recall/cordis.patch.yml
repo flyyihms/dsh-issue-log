@@ -1,0 +1,7 @@
+# Host half: serves the recall API (notes + conversation search) on the
+# composition's web server. Point notesPath at your own markdown file.
+- insert:
+    - id: recall-host
+      name: 'dsh-recall'
+      config:
+        notesPath: '<NOTES_PATH>/dsh-notes.md'

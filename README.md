@@ -37,7 +37,7 @@
 | 插件 | 作用 | 相关记录 |
 |---|---|---|
 | [dsh-approval-notify](plugins/dsh-approval-notify/) | 窗口不在前台时发 Windows 通知 + 任务栏数字角标 | [0003](issues/0003-background-notifications.md) |
-| [dsh-notes](plugins/dsh-notes/) | 顶栏笔记入口 + 右侧抽屉，读/搜/打开 markdown 笔记 | — |
+| [dsh-recall](plugins/dsh-recall/) | 顶栏放大镜 → 右侧抽屉：markdown 笔记 + 跨会话全文搜索 | — |
 
 ## 新增问题
 

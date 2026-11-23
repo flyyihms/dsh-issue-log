@@ -1,8 +1,8 @@
 {
-  "name": "dsh-notes",
-  "version": "0.1.0",
+  "name": "dsh-recall",
+  "version": "0.2.0",
   "private": true,
-  "description": "DSH bundle: a top-bar notes panel backed by a markdown file, served to the web UI through host HTTP routes.",
+  "description": "DSH bundle: one drawer that recalls what matters — a markdown notebook plus full-text search across every conversation.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -14,6 +14,7 @@
   "files": [
     "lib/index.js",
     "lib/client.js",
+    "lib/zstd.js",
     "cordis.patch.yml",
     "README.md"
   ],

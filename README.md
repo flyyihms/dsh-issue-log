@@ -13,6 +13,15 @@
 | [0001](issues/0001-pwsh-sandbox-0xc0000142.md) | 沙箱内 `pwsh` 一律 `0xC0000142` | Windows 11 x64 | 0.2.1-rc.3 | 本地补丁已修复 |
 | [0002](issues/0002-sandbox-external-programs.md) | 沙箱内无法用管道启动外部程序（`Start-Process` 可绕过） | Windows 11 x64 | 0.2.1-rc.3 | 未解决（设计边界），有稳定规避 |
 | [0003](issues/0003-background-notifications.md) | 后台提醒：Windows 通知 + 任务栏数字角标 | Windows 11 x64 | 0.2.1-rc.3 | 已实现（本地插件，见 [plugins/](plugins/)） |
+| [0004](issues/0004-plugin-top-level-inject.md) | 宿主插件顶层 `inject` 让 `apply` 永不执行（静默失效） | Windows 11 x64 | 0.2.1-rc.3 | 规避（改运行时注入） |
+| [0005](issues/0005-header-corner-single-slot.md) | `header.corner` 是单槽位，注册会顶掉侧栏开关 | Windows 11 x64 | 0.2.1-rc.3 | 规避（改用 `utilities`） |
+| [0006](issues/0006-explorer-opens-folder.md) | `explorer.exe <file>` 打开文件夹而非文件 | Windows 11 x64 | 0.2.1-rc.3 | 规避（改用 `cmd /c start`） |
+| [0007](issues/0007-session-log-multiframe-zstd.md) | 会话日志是多帧 zstd，库里只解第一帧 | Windows 11 x64 | 0.2.1-rc.3 | 规避（逐帧手工解码） |
+| [0008](issues/0008-injected-user-messages.md) | 注入消息也被记成 `user/message`，冒充用户发言 | Windows 11 x64 | 0.2.1-rc.3 | 规避（按 `source.kind` 过滤） |
+| [0009](issues/0009-subagent-user-prompts.md) | 子代理会话的 "user 消息" 是 agent 写的提示词 | Windows 11 x64 | 0.2.1-rc.3 | 规避（跳过 `delegationDepth > 0`） |
+| [0010](issues/0010-client-style-hot-reload.md) | 客户端插件热重载后样式丢失，新类名无样式 | Windows 11 x64 | 0.2.1-rc.3 | 规避（每次覆盖 style） |
+| [0011](issues/0011-client-import-failure-blocks-boot.md) | 客户端插件语法错误导致 Web 启动中断 | Windows 11 x64 | 0.2.1-rc.3 | 规避（改前 `node --check`） |
+| [0012](issues/0012-disable-plugins-recovery.md) | 恢复按钮"禁用第三方插件"清空 bundles 与 patch | Windows 11 x64 | 0.2.1-rc.3 | 已定位（需手动还原） |
 
 ## 阅读约定
 

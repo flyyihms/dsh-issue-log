@@ -30,6 +30,16 @@
 - 合成 SID 用示例值：`S-1-4-<a>-<b>`；用户 SID 用 `S-1-5-21-…`
 - 第三方安全软件不点名，只描述其层级（用户态防护 / 内核驱动）
 
+## 插件
+
+问题记录里提到的本地插件，源码放在 [`plugins/`](plugins/) 下，都是 `link:` 安装到 profile 的：
+
+| 插件 | 作用 | 相关记录 |
+|---|---|---|
+| [dsh-approval-notify](plugins/dsh-approval-notify/) | 窗口不在前台时发 Windows 通知 + 任务栏数字角标 | [0003](issues/0003-background-notifications.md) |
+| [dsh-notes](plugins/dsh-notes/) | 顶栏笔记入口 + 右侧抽屉，读/搜/打开 markdown 笔记 | — |
+
 ## 新增问题
 
-复制 [templates/issue.md](templates/issue.md)，编号顺延（`0002-…`），并在上面的索引表里登记一行。
+复制 [templates/issue.md](templates/issue.md)，编号顺延，并在上面的索引表里登记一行。
+

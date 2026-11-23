@@ -56,11 +56,21 @@ ctx.remote.$on("api-session/status", (sessionId, running) => { ... })
 改用观察界面：审批面板挂载时带 `data-approval-key` 属性，用 `MutationObserver` 盯它出现和消失，完全不依赖事件顺序：
 
 ```js
-const observer = new MutationObserver(check);
-observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-approval-key"] });
+const observer = new MutationObserver(checkAll);
+observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: [attrs] });
 ```
 
-顺带解决"通知什么时候关"：面板消失 = 审批已处理 = 关掉对应通知。
+顺带解决"通知什么时候关"：面板消失 = 已处理 = 关掉对应通知。
+
+同一个套路覆盖了所有"阻塞等你操作"的界面——它们各自挂载时都带一个稳定属性：
+
+| 阻塞类型 | 挂载属性 | 通知标题 |
+|---|---|---|
+| 审批请求 | `data-approval-key` | DSH 需要你确认 |
+| 待回答问题 | `data-question-key` | DSH 在等你回答 |
+| 计划确认 | `data-plan-review-key` | DSH 等你确认计划 |
+
+注意「待回答问题」这类阻塞**不会**让 `api-session/status` 变成 idle（回合还在进行），所以只靠会话状态是漏的，必须靠界面观察。
 
 ### 第四步：焦点判断踩坑
 
@@ -129,6 +139,7 @@ dsh plugin --profile desktop add link:<本目录绝对路径>
 | 切回窗口但不发消息 | ✅ 角标保留 |
 | 发出下一条消息 | ✅ 角标清零 |
 | 后台出现审批框 | ✅ 弹「DSH 需要你确认」+ 审批摘要 |
+| 后台出现待回答问题 | ✅ 弹「DSH 在等你回答」+ 问题摘要 |
 | 审批被处理 / 窗口获得焦点 | ✅ 通知自动关闭，无需手动点"关闭" |
 
 ## 已知限制

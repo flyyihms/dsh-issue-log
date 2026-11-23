@@ -135,36 +135,45 @@ window.__ModuleLoader__.load({
 				});
 			} catch {}
 
-			// Approval toasts follow the mounted panel: it appears -> notify,
-			// it disappears (approved/rejected/resolved) -> close the toast.
+			// Blocking surfaces: each panel mounts with a stable data-* key.
+			// Appearing while backgrounded -> notify; disappearing -> close the toast.
 			try {
-				let currentKey = null;
-				const check = () => {
+				const surfaces = [
+					{ attr: "data-approval-key", title: "DSH 需要你确认", label: "approval" },
+					{ attr: "data-question-key", title: "DSH 在等你回答", label: "question" },
+					{ attr: "data-plan-review-key", title: "DSH 等你确认计划", label: "plan" },
+				];
+				const current = new Map(surfaces.map((surface) => [surface.attr, null]));
+
+				const checkSurface = (surface) => {
 					try {
-						const panel = document.querySelector("[data-approval-key]");
-						const key = panel?.getAttribute("data-approval-key") ?? null;
-						if (key === currentKey) return;
-						if (currentKey !== null) closeToast(`approval:${currentKey}`);
-						currentKey = key;
+						const panel = document.querySelector(`[${surface.attr}]`);
+						const key = panel?.getAttribute(surface.attr) ?? null;
+						const previous = current.get(surface.attr);
+						if (key === previous) return;
+						if (previous !== null) closeToast(`${surface.label}:${previous}`);
+						current.set(surface.attr, key);
 						if (key === null) return;
 						if (!backgrounded()) return;
-						log(`approval panel appeared: ${key}`);
-						const shown = notify("DSH 需要你确认", describeFromPanel(panel), `approval:${key}`);
+						log(`${surface.label} panel appeared: ${key}`);
+						const shown = notify(surface.title, describeFromPanel(panel), `${surface.label}:${key}`);
 						if (shown) bump();
 					} catch (error) {
-						log(`approval watch failed: ${error?.message}`);
+						log(`${surface.label} watch failed: ${error?.message}`);
 					}
 				};
-				const observer = new MutationObserver(check);
+
+				const checkAll = () => surfaces.forEach(checkSurface);
+				const observer = new MutationObserver(checkAll);
 				observer.observe(document.body, {
 					childList: true,
 					subtree: true,
 					attributes: true,
-					attributeFilter: ["data-approval-key"],
+					attributeFilter: surfaces.map((surface) => surface.attr),
 				});
-				check();
+				checkAll();
 			} catch (error) {
-				log(`approval watcher setup failed: ${error?.message}`);
+				log(`surface watcher setup failed: ${error?.message}`);
 			}
 
 			try {
